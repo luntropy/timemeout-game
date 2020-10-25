@@ -1,2 +1,2 @@
-# Pairoyale Game
-Online multiplayer card game "Pairoyale".
+# TimeMeOut Game
+Online PvP card game "TimeMeOut".
