@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, request
 from flask_restful import Api, Resource
 from flask_sqlalchemy import SQLAlchemy
 
@@ -20,11 +20,15 @@ class User(db.Model):
     def __repr__(self):
         return self.username
 
-class HelloWorld(Resource):
-    def get(self):
-        return {'data': 'Hello World!'}
+class Room(Resource):
+    def post(self, host_id, field_size, time_limit):
+        return {'host_id': host_id, 'field_size': field_size, 'time_limit': time_limit}
 
-api.add_resource(HelloWorld, '/helloworld')
+    def get(self, room_id):
+        return {'room_id': room_id}
+
+
+api.add_resource(Room, '/room/<int:host_id>/<string:field_size>/<int:time_limit>')
 
 if __name__ == '__main__':
     app.run(debug=True)
