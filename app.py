@@ -7,7 +7,7 @@ import json
 import time
 import copy
 
-db_connection = 'postgresql://postgres:postgres@127.0.0.1:5432/timemeout'  # timemeout-db
+db_connection = 'postgresql://postgres:postgres@127.0.0.1:5432/timemeout-db'  # timemeout-db
 engine = create_engine(db_connection)
 
 app = Flask(__name__)
@@ -156,8 +156,8 @@ def connect_to_game():
         data = request.json
         guest_id = data['guest_id']
         room_id = data['room_id']
-        with engine.connect as connection:
-            connect_to_game_query = connection.execute('''UPDATE room SET guest_id = {0} WHERE room_id = {1}'''.format(guest_id, room_id))
+        with engine.connect() as connection:
+            connect_to_game_query = connection.execute(text('''UPDATE room SET guest_id = {0} WHERE room_id = {1};'''.format(guest_id, room_id)));
             rooms_json_query = connection.execute(text('''SELECT json_name FROM room WHERE room_id = {0};'''.format(room_id)))
 
             room = rooms_json_query.fetchone()
