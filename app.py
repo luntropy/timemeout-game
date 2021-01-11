@@ -156,7 +156,7 @@ def connect_to_game():
         guest_id = data['guest_id']
         room_id = data['room_id']
 
-        with engine.connect as connection:
+        with engine.connect() as connection:
             connect_to_game_query = connection.execute(text('''UPDATE room SET guest_id = {0} WHERE room_id = {1}'''.format(guest_id, room_id)))
             rooms_json_query = connection.execute(text('''SELECT json_name FROM room WHERE room_id = {0};'''.format(room_id)))
 

@@ -15,14 +15,24 @@ import urllib.request, json
 BASE = 'http://127.0.0.1:5000/'
 
 # Test user creation
-postdata = {'username':'asd', 'password': 'asdasd123'}
 url = 'register_user'
-x = requests.post(BASE + url, json = {'username':'luntropy', 'password': 'luntropy'})
+user_one = {'username':'luntropy', 'password': 'luntropy'}
+user_two = {'username':'lunt', 'password': 'lunt'}
+x = requests.post(BASE + url, json = user_one)
+x = requests.post(BASE + url, json = user_two)
 
+# Test games creation
+url = 'create_game'
+x = requests.post(BASE + url, json = {'host_id': 1, 'field_size': 20, 'time_limit': 30})
+
+# Test games listing
 url = 'list_games'
 x = requests.get(BASE + url)
 
-url = 'create_game'
-x = requests.post(BASE + url, json = {'host_id': 1, 'field_size': 20, 'time_limit': 30})
+# Test connection to a game
+data = {'guest_id': 2, 'room_id': '27'}
+
+url = 'connect_to_game'
+x = requests.post(BASE + url, json = data)
 
 print(x.json)
