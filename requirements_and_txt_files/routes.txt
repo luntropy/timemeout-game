@@ -1,0 +1,14 @@
+Register
+Login
+Create game
+List games
+Connect to game/ Load game
+Exit game
+Abandon game
+Attack player
+
+Support functions:
+Calculate damage
+Shuffle cards
+Generate cards
+Calculate final score
