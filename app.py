@@ -7,7 +7,7 @@ import json
 import time
 import copy
 
-db_connection = 'postgresql://postgres:postgres@127.0.0.1:5432/timemeout'  # timemeout-db
+db_connection = 'postgresql://postgres:postgres@127.0.0.1:5432/timemeout-db'
 engine = create_engine(db_connection)
 
 app = Flask(__name__)
@@ -116,11 +116,10 @@ def create_game():
         'player_host': { 'board': cards_first_player, 'time_left': data_room_db['time_limit'], 'player_score': player_host_score, 'game_score': 0, 'attacks': {} },
         'player_guest': { 'board': cards_second_player, 'time_left': data_room_db['time_limit'], 'player_score': player_guest_score, 'game_score': 0, 'attacks': {} }, 'result': { 'game_result': 'None', 'points_host': 0, 'points_guest': 0 }}
 
-        print(type(data_json))
         with open('./rooms_json/' + file_name, 'w', encoding='utf-8') as json_file:
             json.dump(data_json, json_file, ensure_ascii=False, indent=4)
 
-        return {'game_creation': 'unsuccessful', 'room_data_json': file_name_db}
+        return {'game_creation': 'successful', 'room_data_json': data_json}
 
 # List available games
 @app.route('/list_games', methods = ['GET'])
@@ -141,7 +140,7 @@ def list_games():
 
 # Connect to given game
 # Input: {'guest_id': 'guest_id', 'room_id': 'room_id'}
-# Output: {'room_data_json': 'room_data_json.json'}
+# Output: {'room_data_json': 'room_data'}
 # Returns room information
 # @app.route('/connect_to_game', methods = ['POST'])
 # def connect_to_game():
@@ -156,12 +155,14 @@ def connect_to_game():
         data = request.json
         guest_id = data['guest_id']
         room_id = data['room_id']
+
         with engine.connect as connection:
-            connect_to_game_query = connection.execute('''UPDATE room SET guest_id = {0} WHERE room_id = {1}'''.format(guest_id, room_id))
+            connect_to_game_query = connection.execute(text('''UPDATE room SET guest_id = {0} WHERE room_id = {1}'''.format(guest_id, room_id)))
             rooms_json_query = connection.execute(text('''SELECT json_name FROM room WHERE room_id = {0};'''.format(room_id)))
 
             room = rooms_json_query.fetchone()
             file_name = room[0]
+
             json_data = {}
             with open('./rooms_json/' + file_name, 'r', encoding='utf-8') as json_file:
                 json_data = json.load(json_file)
@@ -173,7 +174,7 @@ def connect_to_game():
 
 # Displays final result message
 # Ends the game
-# Input: {'winner': 'host/guest/draw'}
+# Input: {'room_id': 'room_id', 'winner': 'host/guest/draw'}
 # Output: json file updated 'result' with final points gained or lost by the players {'json': 'updated'} or {'json': 'None'}
 # @app.route('/end_game', methods = ['POST'])
 # def end_game():
