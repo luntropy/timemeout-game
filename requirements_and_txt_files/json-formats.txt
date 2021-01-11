@@ -34,7 +34,7 @@ Input:
 
 Output:
 {'game_creation': 'unsuccessful', 'room_data_json': 'None'}
-{'game_creation': 'successful', 'room_data_json': 'room_name.json'}
+{'game_creation': 'successful', 'room_data_json': 'json_data'}
 
 Room JSON file contents
 {
@@ -112,7 +112,7 @@ Room JSON file contents
 def end_game():
 
 INPUT:
-{'winner': 'host/guest/draw'}
+{'room_id': 'room_id', 'winner': 'host/guest/draw'}
 
 OUTPUT:
 {'json': 'None'}
@@ -125,7 +125,7 @@ INPUT:
 {'guest_id': 'guest_id', 'room_id': 'room_id'}
 
 OUTPUT:
-{'room_data_json': 'room_data_json.json'}
+{'room_data_json': 'data_json'}
 
 @app.route('/attack', methods = ['POST'])
 def attack():
