@@ -7,7 +7,7 @@ import json
 import time
 import copy
 
-db_connection = 'postgresql://postgres:postgres@127.0.0.1:5432/timemeout-db'
+db_connection = 'postgresql://postgres:postgres@127.0.0.1:5432/timemeout'  # timemeout-db
 engine = create_engine(db_connection)
 
 app = Flask(__name__)
@@ -145,11 +145,31 @@ def list_games():
 # Returns room information
 # @app.route('/connect_to_game', methods = ['POST'])
 # def connect_to_game():
-# Updates in the db:
-# host_id
-# Updates the json file:
-# Guest_id
-# player_guest_score
+@app.route('/connect_to_game', methods = ['POST'])
+def connect_to_game():
+    # Updates in the db:
+    # host_id
+    # Updates the json file:
+    # Guest_id
+    # player_guest_score
+    if request.method == 'POST':
+        data = request.json
+        guest_id = data['guest_id']
+        room_id = data['room_id']
+        with engine.connect as connection:
+            connect_to_game_query = connection.execute('''UPDATE room SET guest_id = {0} WHERE room_id = {1}'''.format(guest_id, room_id))
+            rooms_json_query = connection.execute(text('''SELECT json_name FROM room WHERE room_id = {0};'''.format(room_id)))
+
+            room = rooms_json_query.fetchone()
+            file_name = room[0]
+            json_data = {}
+            with open('./rooms_json/' + file_name, 'r', encoding='utf-8') as json_file:
+                json_data = json.load(json_file)
+            json_data['guest_id'] = guest_id
+            with open('./rooms_json/' + file_name, 'w', encoding='utf-8') as json_file:
+                json.dump(json_data, json_file, ensure_ascii=False, indent=4)
+            # returns dic but can be changed
+            return {'room_data_json': json_data}
 
 # Displays final result message
 # Ends the game
@@ -157,19 +177,26 @@ def list_games():
 # Output: json file updated 'result' with final points gained or lost by the players {'json': 'updated'} or {'json': 'None'}
 # @app.route('/end_game', methods = ['POST'])
 # def end_game():
-# Updates the db with the final result
-# Updates:
-# finished = 1
-# game_result win/ lose/ draw - host perspective
-# host_score = the score the host gained when playing - different from player score
-# guest_schore = the score the guest gained when playing - different from player score
-# Updates the players' score:
-# 1. From the json file get player score (or db)
-# 2. From the json file get points gained for the host and the guest - player score in player_host and player_guest
-# 3. Formula: P1 - won P1 score = P1 score + 10% * P2 score + 6% P1 game_score_p1
-# if P2 lost and P2 score = 0 then formula: P1 score = P1 score + 5 + 6% P1 game_score_p1
-# Formula: P2 - lost P2 score = P2 score - 10% P2 score
-# If draw no one gains or loses points
+@app.route('/end_game', methods = ['POST'])
+def end_game():
+    # Updates the db with the final result
+    # Updates:
+    # finished = 1
+    # game_result win/ lose/ draw - host perspective
+    # host_score = the score the host gained when playing - different from player score
+    # guest_schore = the score the guest gained when playing - different from player score
+    if request.method == 'POST':
+        data = request.jsons
+        game_result = data['winner']
+        # ??????? we need room_id at least, not only the reuslt... also the score......
+
+    # Updates the players' score:
+    # 1. From the json file get player score (or db)
+    # 2. From the json file get points gained for the host and the guest - player score in player_host and player_guest
+    # 3. Formula: P1 - won P1 score = P1 score + 10% * P2 score + 6% P1 game_score_p1
+    # if P2 lost and P2 score = 0 then formula: P1 score = P1 score + 5 + 6% P1 game_score_p1
+    # Formula: P2 - lost P2 score = P2 score - 10% P2 score
+    # If draw no one gains or loses points
 
 # @app.route('/attack', methods = ['POST'])
 # def attack():
