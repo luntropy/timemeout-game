@@ -100,7 +100,7 @@ def create_game():
 
             player_guest_score = 0
 
-        # Generate json file for the room configuration
+        # Generate json file with the room configuration
         cards_first_player = generate_cards(field_size)
         cards_second_player = generate_cards(field_size)
 
@@ -137,8 +137,6 @@ def list_games():
 # Input: {'guest_id': 'guest_id', 'room_id': 'room_id'}
 # Output: {'room_data_json': 'room_data'} and {'room_data_json': ''} if room not available
 # Returns room information
-# @app.route('/connect_to_game', methods = ['POST'])
-# def connect_to_game():
 @app.route('/connect_to_game', methods = ['POST'])
 def connect_to_game():
     # Updates in the db:
@@ -148,8 +146,8 @@ def connect_to_game():
     # player_guest_score
     if request.method == 'POST':
         data = request.json
-        guest_id = data['guest_id']
         room_id = data['room_id']
+        guest_id = data['guest_id']
 
         with engine.connect() as connection:
             # Check if the requested game is available
@@ -170,14 +168,12 @@ def connect_to_game():
             json_data['guest_id'] = guest_id
             with open('./rooms_json/' + file_name, 'w', encoding='utf-8') as json_file:
                 json.dump(json_data, json_file, ensure_ascii=False, indent=4)
-            # returns dic but can be changed
+
             return {'room_data_json': json_data}
 
 # Displays final result message
 # Ends the game
 # Input: {'room_id': 'room_id', 'winner': 'host/guest/draw'}
-# @app.route('/end_game', methods = ['POST'])
-# def end_game():
 @app.route('/end_game', methods = ['POST'])
 def end_game():
     # Updates the db with the final result
