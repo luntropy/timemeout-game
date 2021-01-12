@@ -1,6 +1,7 @@
 from flask import Flask, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import create_engine, text
+from passlib.hash import sha256_crypt
 
 import random
 import json
@@ -40,16 +41,13 @@ def generate_cards(field_size):
 # User registration
 # Needed information:
 # Username, password in format: {'username': 'username', 'password': 'hashed_password'}
-# Tokens
 @app.route('/register_user', methods = ['POST'])
 def register_user():
     if request.method == 'POST':
         data = request.json
 
-        username = str(data['username'])
-        password = str(data['password'])
-        username = ''' '{0}' '''.format(username)
-        password = ''' '{0}' '''.format(password)
+        username = ''' '{0}' '''.format(str(data['username']))
+        password = ''' '{0}' '''.format(sha256_crypt.hash(str(data['password'])))
 
         with engine.connect() as connection:
             unique_user_query = connection.execute(text('''SELECT username FROM player WHERE username = {0};'''.format(username)))
@@ -62,10 +60,24 @@ def register_user():
         return {'registration': 1}
 
 # User login authentication
-# @app.route('/login_user', methods = ['POST'])
-# def login_user():
-#     if request.method == 'POST':
-#         data = request.json
+@app.route('/login_user', methods = ['POST'])
+def login_user():
+    if request.method == 'POST':
+        data = request.json
+
+        username = ''' '{0}' '''.format(str(data['username']))
+
+        with engine.connect() as connection:
+            find_user_query = connection.execute(text('''SELECT user_password FROM player WHERE username = {0};'''.format(username)))
+
+            user_data = find_user_query.fetchone()
+            if not user_data:
+                return {'login': 0}
+
+            if sha256_crypt.verify(str(data['password']), user_data[0]):
+                return {'login': 1}
+            else:
+                return {'login': 0}
 
 # Create game
 # Creates game and adds it to the db

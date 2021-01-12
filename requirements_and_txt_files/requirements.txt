@@ -4,3 +4,4 @@ Werkzeug==1.0.1
 flask-sqlalchemy
 requests
 psycopg2
+passlib
