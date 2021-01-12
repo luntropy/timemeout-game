@@ -5,19 +5,21 @@ Input:
 {'username': 'username', 'password': 'hashed_password'}
 
 Output:
-{'registration': 'unsuccessful'}
-{'registration': 'successful'}
+{'registration': 0}
+{'registration': 1}
 
-@app.route('/list_games', methods = ['GET'])
-def list_games():
+----------------------
+@app.route('/login_user', methods = ['POST'])
+def login_user():
 
 Input:
-None
+{'username': 'username', 'password': 'hashed_password'}
 
 Output:
-{'rooms_list': 'None'}
-{'rooms_list': [room_ids]}
+{'login': 0}
+{'login': 1}
 
+----------------------
 @app.route('/create_game', methods = ['POST'])
 def create_game():
 
@@ -26,15 +28,15 @@ Valid field_sizes - 20, 16, 12: (row x column)
 # 4x4 = 16, 8 unique
 # 3x4 = 12, 6 unique
 
-Valid time_limit - 90, 60, 50, 45, 30
-? Best: 20 - 60, 16 - 50, 12 - 40 ?
+Valid time_limit - 90s, 60s, 50s, 45s, 30s
+? Best: 20 cards - 60s, 16 cards - 50s, 12 cards - 40s ?
 
 Input:
 {'host_id': 'host_id', 'field_size': 'field_size', 'time_limit': 'time_limit'}
 
 Output:
-{'game_creation': 'unsuccessful', 'room_data_json': 'None'}
-{'game_creation': 'successful', 'room_data_json': 'json_data'}
+{'game_creation': 0, 'room_data_json': ''}
+{'game_creation': 1, 'room_data_json': 'json_data'}
 
 Room JSON file contents
 {
@@ -46,56 +48,14 @@ Room JSON file contents
         "time_limit": 30
     },
     "player_host": {
-        "board": {
-            "3": 0,
-            "5": 0,
-            "20": 0,
-            "6": 0,
-            "5-2": 0,
-            "9": 0,
-            "9-2": 0,
-            "10": 0,
-            "6-2": 0,
-            "10-2": 0,
-            "17": 0,
-            "17-2": 0,
-            "11": 0,
-            "3-2": 0,
-            "8": 0,
-            "13": 0,
-            "8-2": 0,
-            "20-2": 0,
-            "11-2": 0,
-            "13-2": 0
-        },
+        "board": [],
         "time_left": 30,
         "player_score": 100,
         "game_score": 0,
         "attacks": {}
     },
     "player_guest": {
-        "board": {
-            "7": 0,
-            "12": 0,
-            "17": 0,
-            "5": 0,
-            "2": 0,
-            "13": 0,
-            "6": 0,
-            "17-2": 0,
-            "2-2": 0,
-            "5-2": 0,
-            "7-2": 0,
-            "13-2": 0,
-            "9": 0,
-            "0": 0,
-            "12-2": 0,
-            "1": 0,
-            "9-2": 0,
-            "6-2": 0,
-            "0-2": 0,
-            "1-2": 0
-        },
+        "board": [],
         "time_left": 30,
         "player_score": 0,
         "game_score": 0,
@@ -108,31 +68,40 @@ Room JSON file contents
     }
 }
 
-@app.route('/end_game', methods = ['POST'])
-def end_game():
+----------------------
+@app.route('/list_games', methods = ['GET'])
+def list_games():
 
-INPUT:
-{'room_id': 'room_id', 'winner': 'host/guest/draw'}
+Input:
+None
 
-OUTPUT:
-{'json': 'None'}
-{'json': 'updated'}
+Output:
+{'rooms_list': ''}
+{'rooms_list': [room_ids]}
 
+----------------------
 @app.route('/connect_to_game', methods = ['POST'])
 def connect_to_game():
 
-INPUT:
-{'guest_id': 'guest_id', 'room_id': 'room_id'}
+Input:
+{'room_id': 'room_id', 'guest_id': 'guest_id'}
 
-OUTPUT:
+Output:
+{'room_data_json': ''}
 {'room_data_json': 'data_json'}
 
+----------------------
+@app.route('/end_game', methods = ['POST'])
+def end_game():
+
+Input:
+{'room_id': 'room_id', 'winner': 'host/guest/draw'}
+
+Output:
+None
+
+----------------------
 @app.route('/attack', methods = ['POST'])
 def attack():
-
-?
-
-@app.route('/login_user', methods = ['POST'])
-def login_user():
 
 ?

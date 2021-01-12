@@ -22,7 +22,7 @@ def generate_cards(field_size):
     # 3x4 = 12, 6 unique
 
     count_unique_cards = int(field_size / 2)
-    list_card_ids = list(range(0, 21))
+    list_card_ids = list(range(1, 21))
 
     random.shuffle(list_card_ids)
     cards = list_card_ids[:count_unique_cards]
@@ -31,16 +31,11 @@ def generate_cards(field_size):
     deck = cards + duplicates
     random.shuffle(deck)
 
-    deck_dictionary = {}
+    deck_list = []
     for card in deck:
-        card = str(card)
+        deck_list.append(str(card))
 
-        if card in deck_dictionary.keys():
-            card = card + '-2'
-
-        deck_dictionary[card] = 0
-
-    return deck_dictionary
+    return deck_list
 
 # User registration
 # Needed information:
@@ -60,11 +55,11 @@ def register_user():
             unique_user_query = connection.execute(text('''SELECT username FROM player WHERE username = {0};'''.format(username)))
 
             if unique_user_query.fetchall():
-                return {'registration': 'unsuccessful'}
+                return {'registration': 0}
 
             create_user_query = connection.execute(text('''INSERT INTO player (username, user_password, score) VALUES ({0}, {1}, 100);'''.format(username, password)))
 
-        return {'registration': 'successful'}
+        return {'registration': 1}
 
 # User login authentication
 # @app.route('/login_user', methods = ['POST'])
@@ -96,7 +91,7 @@ def create_game():
 
             data_room_db = data_room_query.fetchone()
             if not data_room_db:
-                return {'game_creation': 'unsuccessful', 'room_data_json': 'None'}
+                return {'game_creation': 0, 'room_data_json': ''}
 
             player_host_score_query = connection.execute(text('''SELECT score FROM player WHERE player_id = {0};'''.format(host_id)))
             player_host_score = player_host_score_query.fetchone()
@@ -105,7 +100,7 @@ def create_game():
 
             player_guest_score = 0
 
-        # Generate json file for the room configuration
+        # Generate json file with the room configuration
         cards_first_player = generate_cards(field_size)
         cards_second_player = generate_cards(field_size)
 
@@ -119,7 +114,7 @@ def create_game():
         with open('./rooms_json/' + file_name, 'w', encoding='utf-8') as json_file:
             json.dump(data_json, json_file, ensure_ascii=False, indent=4)
 
-        return {'game_creation': 'successful', 'room_data_json': data_json}
+        return {'game_creation': 1, 'room_data_json': data_json}
 
 # List available games
 @app.route('/list_games', methods = ['GET'])
@@ -134,16 +129,14 @@ def list_games():
                 rooms_list.append(row[0])
 
             if not rooms_list_query.fetchall():
-                return {'rooms_list': 'None'}
+                return {'rooms_list': ''}
 
             return {'rooms_list': rooms_list}
 
 # Connect to given game
 # Input: {'guest_id': 'guest_id', 'room_id': 'room_id'}
-# Output: {'room_data_json': 'room_data'}
+# Output: {'room_data_json': 'room_data'} and {'room_data_json': ''} if room not available
 # Returns room information
-# @app.route('/connect_to_game', methods = ['POST'])
-# def connect_to_game():
 @app.route('/connect_to_game', methods = ['POST'])
 def connect_to_game():
     # Updates in the db:
@@ -153,11 +146,17 @@ def connect_to_game():
     # player_guest_score
     if request.method == 'POST':
         data = request.json
-        guest_id = data['guest_id']
         room_id = data['room_id']
+        guest_id = data['guest_id']
 
         with engine.connect() as connection:
-            connect_to_game_query = connection.execute(text('''UPDATE room SET guest_id = {0} WHERE room_id = {1}'''.format(guest_id, room_id)))
+            # Check if the requested game is available
+            check_if_available_query = connection.execute(text('''SELECT * FROM room WHERE room_id = {0} AND guest_id is NULL;'''.format(room_id)))
+
+            if not check_if_available_query.fetchone():
+                return {'room_data_json': ''}
+
+            connect_to_game_query = connection.execute(text('''UPDATE room SET guest_id = {0} WHERE room_id = {1};'''.format(guest_id, room_id)))
             rooms_json_query = connection.execute(text('''SELECT json_name FROM room WHERE room_id = {0};'''.format(room_id)))
 
             room = rooms_json_query.fetchone()
@@ -169,15 +168,12 @@ def connect_to_game():
             json_data['guest_id'] = guest_id
             with open('./rooms_json/' + file_name, 'w', encoding='utf-8') as json_file:
                 json.dump(json_data, json_file, ensure_ascii=False, indent=4)
-            # returns dic but can be changed
+
             return {'room_data_json': json_data}
 
 # Displays final result message
 # Ends the game
 # Input: {'room_id': 'room_id', 'winner': 'host/guest/draw'}
-# Output: json file updated 'result' with final points gained or lost by the players {'json': 'updated'} or {'json': 'None'}
-# @app.route('/end_game', methods = ['POST'])
-# def end_game():
 @app.route('/end_game', methods = ['POST'])
 def end_game():
     # Updates the db with the final result
