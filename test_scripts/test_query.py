@@ -21,16 +21,21 @@ user_two = {'username':'lunt', 'password': 'lunt'}
 x = requests.post(BASE + url, json = user_one)
 x = requests.post(BASE + url, json = user_two)
 
+# Test user login
+url = 'login_user'
+user = {'username':'luntropy', 'password': 'luntropy'}
+x = requests.post(BASE + url, json = user)
+
 # Test games creation
 url = 'create_game'
-x = requests.post(BASE + url, json = {'host_id': 1, 'field_size': 20, 'time_limit': 30})
+x = requests.post(BASE + url, json = {'host_id': 5, 'field_size': 20, 'time_limit': 30})
 
 # Test games listing
 url = 'list_games'
 x = requests.get(BASE + url)
 
 # Test connection to a game
-data = {'guest_id': 2, 'room_id': '31'}
+data = {'guest_id': 6, 'room_id': '44'}
 
 url = 'connect_to_game'
 x = requests.post(BASE + url, json = data)
