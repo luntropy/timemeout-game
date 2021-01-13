@@ -8,6 +8,12 @@ import json
 import time
 import copy
 
+@app.route("/", methods=["GET"])
+def get_example():
+    """GET in server"""
+    response = jsonify(message="Simple server is running")
+    return response
+    
 db_connection = 'postgresql://postgres:postgres@127.0.0.1:5432/timemeout-db'
 engine = create_engine(db_connection)
 

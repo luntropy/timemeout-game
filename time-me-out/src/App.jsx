@@ -15,6 +15,10 @@ export default function App() {
   const [wrongGuesses, setWrongGuesses] = useState(0);
   const [losses, setLosses] = useState(0);
 
+  useEffect(()=>{
+    fetch('http://127.0.0.1:5000/').then(res=>console.log(res))
+  })
+
   useEffect(() => {
     resizeBoard();
     setCards(initializeDeck());
@@ -93,8 +97,6 @@ export default function App() {
       }}
     >
       <Navbar
-        wins={wins}
-        losses={losses}
         score={score}
         wrongGuesses={wrongGuesses}
         newGame={newGame}
