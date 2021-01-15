@@ -95,7 +95,7 @@ Output:
 def end_game():
 
 Input:
-{'room_id': 'room_id', 'winner': 'host/guest/draw'}
+{'room_id': 'room_id', 'winner': 'host/guest/draw', 'player_id': id, 'player_role': 'host/guest', 'player_game_score': 'game_score'}
 
 Output:
 None
