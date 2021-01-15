@@ -66,15 +66,17 @@ def register_user():
 
         with engine.connect() as connection:
             unique_user_query = connection.execute(text('''SELECT username FROM player WHERE username = {0};'''.format(username)))
+            player_id = ''
 
             if unique_user_query.fetchall():
-                response = jsonify({'registration': 0})
+                response = jsonify({'registration': 0, 'player_id': player_id})
                 response.headers.add("Access-Control-Allow-Origin", "*")
                 return response
 
             create_user_query = connection.execute(text('''INSERT INTO player (username, user_password, score) VALUES ({0}, {1}, 100);'''.format(username, password)))
-
-            response = jsonify({'registration': 1})
+            select_user_id = connection.execute(text('''SELECT player_id FROM player WHERE username = {0};'''.format(username)))
+            player_id = select_user_id.fetchone()[0]
+            response = jsonify({'registration': 1, 'player_id': player_id})
             response.headers.add("Access-Control-Allow-Origin", "*")
         return response
 
@@ -90,18 +92,21 @@ def login_user():
         with engine.connect() as connection:
             find_user_query = connection.execute(text('''SELECT user_password FROM player WHERE username = {0};'''.format(username)))
 
+            player_id = ''
             user_data = find_user_query.fetchone()
             if not user_data:
-                response = jsonify({'login': 0})
+                response = jsonify({'login': 0, 'player_id': player_id})
                 response.headers.add("Access-Control-Allow-Origin", "*")
                 return response
 
             if sha256_crypt.verify(str(data['password']), user_data[0]):
-                response = jsonify({'login': 1})
+                select_user_id = connection.execute(text('''SELECT player_id FROM player WHERE username = {0};'''.format(username)))
+                player_id = select_user_id.fetchone()[0]
+                response = jsonify({'login': 1, 'player_id': player_id})
                 response.headers.add("Access-Control-Allow-Origin", "*")
                 return response
             else:
-                response = jsonify({'login': 0})
+                response = jsonify({'login': 0, 'player_id': player_id})
                 response.headers.add("Access-Control-Allow-Origin", "*")
                 return response
 
@@ -122,17 +127,21 @@ def create_game():
         file_name_db = "'" + '{0}{1}.json'.format(host_id, current_time) + "'"
         file_name = '{0}{1}.json'.format(host_id, current_time)
 
+        room_id = ''
+
         # Create room
         with engine.connect() as connection:
             create_room_query = connection.execute(text('''INSERT INTO room (host_id, field_size, time_limit, json_name) VALUES ({0}, {1}, {2}, {3});'''.format(host_id, field_size, time_limit, file_name_db)))
 
-            data_room_query = connection.execute(text('''SELECT * FROM room WHERE host_id = {0} AND json_name = {1} AND finished = '0';'''.format(host_id, file_name_db)))
+            data_room_query = connection.execute(text('''SELECT r* FROM room WHERE host_id = {0} AND json_name = {1} AND finished = '0';'''.format(host_id, file_name_db)))
 
             data_room_db = data_room_query.fetchone()
             if not data_room_db:
-                response = jsonify({'game_creation': 0, 'room_data_json': ''})
+                response = jsonify({'game_creation': 0, 'room_data_json': '', 'room_id': ''})
                 response.headers.add("Access-Control-Allow-Origin", "*")
                 return response
+
+            room_id = data_room_db['room_id']
 
             player_host_score_query = connection.execute(text('''SELECT score FROM player WHERE player_id = {0};'''.format(host_id)))
             player_host_score = player_host_score_query.fetchone()
@@ -149,13 +158,13 @@ def create_game():
         'host_id': data_room_db['host_id'],
         'guest_id': data_room_db['guest_id'],
         'settings': { 'field_size': data_room_db['field_size'], 'time_limit': data_room_db['time_limit'] },
-        'player_host': { 'board': cards_first_player, 'time_left': data_room_db['time_limit'], 'player_score': player_host_score, 'game_score': 0, 'attacks': {} },
-        'player_guest': { 'board': cards_second_player, 'time_left': data_room_db['time_limit'], 'player_score': player_guest_score, 'game_score': 0, 'attacks': {} }, 'result': { 'game_result': 'None', 'points_host': 0, 'points_guest': 0 }}
+        'player_host': { 'board': cards_first_player, 'time_left': data_room_db['time_limit'], 'player_score': player_host_score, 'game_score': 0, 'attacks': 0 },
+        'player_guest': { 'board': cards_second_player, 'time_left': data_room_db['time_limit'], 'player_score': player_guest_score, 'game_score': 0, 'attacks': 0 }, 'result': { 'game_result': 'None', 'points_host': 0, 'points_guest': 0 }}
 
         with open('./rooms_json/' + file_name, 'w', encoding='utf-8') as json_file:
             json.dump(data_json, json_file, ensure_ascii=False, indent=4)
 
-        response = jsonify({'game_creation': 1, 'room_data_json': data_json})
+        response = jsonify({'game_creation': 1, 'room_data_json': data_json, 'room_id': room_id})
         response.headers.add("Access-Control-Allow-Origin", "*")
         return response
 
@@ -312,9 +321,83 @@ def end_game():
         response.headers.add("Access-Control-Allow-Origin", "*")
         return response
 
+
 # @app.route('/attack', methods = ['POST'])
 # def attack():
 # Attack on player
+# Input: {'attack_type': 0/1/2, 'player_id': 'player_id', 'room_id': 'room_id'}
+# Output: {'attack_type': 0/1/2, 'player_id': 'player_id', 'room_id': 'room_id'}
+@app.route('/attack', methods=['POST'])
+def attack():
+    if request.method == 'POST':
+        data = request.json
+        attack_type = data['attack_type']
+        player_id = data['player_id']
+        room_id = data['room_id']
+
+        if attack_type == 0:
+            with engine.connect() as connection:
+                rooms_json_query = connection.execute(text('''SELECT json_name FROM room WHERE room_id = {0};'''.format(room_id)))
+
+                room = rooms_json_query.fetchone()
+                if room is not None:
+                    file_name = room[0]
+                    json_data = {}
+                    with open('./rooms_json/' + file_name, 'r', encoding='utf-8') as json_file:
+                        json_data = json.load(json_file)
+                    host_id = json_data['host_id']
+                    guest_id = json_data['guest_id']
+
+                    attack = 0
+                    oponent_id = 0
+                    if player_id == host_id:
+                        attack = json_data['player_guest']['attacks']  # the attack from pl2 to pl1
+                        json_data['player_guest']['attacks'] = 0
+                        oponent_id = guest_id
+
+                    if player_id == guest_id:
+                        attack = json_data['player_host']['attacks']  # the attack from pl1 to pl2
+                        json_data['player_host']['attacks'] = 0
+                        oponent_id = host_id
+
+                    with open('./rooms_json/' + file_name, 'w', encoding='utf-8') as json_file:
+                        json.dump(json_data, json_file, ensure_ascii=False, indent=4)
+
+                    response = jsonify({'attack_type': attack, 'player_id': oponent_id, 'room_id': room_id})
+                    response.headers.add("Access-Control-Allow-Origin", "*")
+                    return response
+
+        else:
+            with engine.connect() as connection:
+                rooms_json_query = connection.execute(text('''SELECT json_name FROM room WHERE room_id = {0};'''.format(room_id)))
+
+                room = rooms_json_query.fetchone()
+                if room is not None:
+                    file_name = room[0]
+                    json_data = {}
+                    with open('./rooms_json/' + file_name, 'r', encoding='utf-8') as json_file:
+                        json_data = json.load(json_file)
+                    host_id = json_data['host_id']
+                    guest_id = json_data['guest_id']
+
+                    attack = 0
+                    oponent_id = 0
+                    if player_id == host_id:
+                        # attack = json_data['player_guest']['attacks']  # the attack from pl2 to pl1
+                        json_data['player_host']['attacks'] = attack_type
+                        oponent_id = guest_id
+
+                    if player_id == guest_id:
+                        # attack = json_data['player_host']['attacks']  # the attack from pl1 to pl2
+                        json_data['player_guest']['attacks'] = attack_type
+                        oponent_id = host_id
+
+                    with open('./rooms_json/' + file_name, 'w', encoding='utf-8') as json_file:
+                        json.dump(json_data, json_file, ensure_ascii=False, indent=4)
+
+                    response = jsonify({'attack_type': attack, 'player_id': oponent_id, 'room_id': room_id})
+                    response.headers.add("Access-Control-Allow-Origin", "*")
+                    return response
 
 
 if __name__ == '__main__':
