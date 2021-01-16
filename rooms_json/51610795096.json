@@ -1,0 +1,70 @@
+{
+    "room_id": 61,
+    "host_id": 5,
+    "guest_id": null,
+    "settings": {
+        "field_size": 20,
+        "time_limit": 30
+    },
+    "player_host": {
+        "board": [
+            "3",
+            "2",
+            "7",
+            "4",
+            "12",
+            "14",
+            "3",
+            "9",
+            "15",
+            "7",
+            "10",
+            "15",
+            "12",
+            "14",
+            "18",
+            "9",
+            "2",
+            "18",
+            "4",
+            "10"
+        ],
+        "time_left": 30,
+        "player_score": 83,
+        "game_score": 0,
+        "attacks": 0
+    },
+    "player_guest": {
+        "board": [
+            "11",
+            "7",
+            "5",
+            "17",
+            "7",
+            "8",
+            "3",
+            "20",
+            "17",
+            "3",
+            "12",
+            "9",
+            "20",
+            "8",
+            "9",
+            "12",
+            "1",
+            "11",
+            "1",
+            "5"
+        ],
+        "time_left": 30,
+        "player_score": 0,
+        "game_score": 0,
+        "attacks": 0
+    },
+    "result": {
+        "game_result": "None",
+        "points_host": 0,
+        "points_guest": 0
+    }
+}

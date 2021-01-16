@@ -240,9 +240,10 @@ def connect_to_game():
 # Input: {'room_id': 'room_id', 'winner': 'host/guest/draw', 'player_id': id, 'player_role': 'host/guest', 'player_game_score': 'game_score'}
 @app.route('/end_game', methods=['POST'])
 def end_game():
+    # Check if winner and player_role are the same if they are continue
+    # else return response for losing the game
 
     if request.method == 'POST':
-
         data = request.json
         room_id = data['room_id']
         game_result = data['winner']
@@ -273,11 +274,15 @@ def end_game():
                         json_data = json.load(json_file)
 
                     score = pl_score[0]
+                    # 1. Add query for guest score
+                    # 2. Add 10% of the score to the host's score + 6% of his game score
+                    # 3. Remove 10% of the guest's score
                     if player_role == 'host':
                         score += int(0.10 * score + 0.06 * player_game_score)
                         json_data["player_host"]["player_score"] = score
                         json_data["player_host"]["game_score"] = player_game_score
 
+                    # If guest do nothing - the scores are already updated in the db
                     if player_role == 'guest':
                         score -= int(0.10 * score)
                         json_data["player_guest"]["player_score"] = score
@@ -287,7 +292,7 @@ def end_game():
                     with open('./rooms_json/' + file_name, 'w', encoding='utf-8') as json_file:
                         json.dump(json_data, json_file, ensure_ascii=False, indent=4)
 
-        else:
+        elif game_result.lower() == 'guest':
             with engine.connect() as connection:
                 rooms_json_query = connection.execute(text('''SELECT json_name FROM room WHERE room_id = {0};'''.format(room_id)))
 
