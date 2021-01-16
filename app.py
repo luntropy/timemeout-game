@@ -78,7 +78,7 @@ def register_user():
             player_id = select_user_id.fetchone()[0]
             response = jsonify({'registration': 1, 'player_id': player_id})
             response.headers.add("Access-Control-Allow-Origin", "*")
-        return response
+            return response
 
 
 # User login authentication
@@ -133,7 +133,7 @@ def create_game():
         with engine.connect() as connection:
             create_room_query = connection.execute(text('''INSERT INTO room (host_id, field_size, time_limit, json_name) VALUES ({0}, {1}, {2}, {3});'''.format(host_id, field_size, time_limit, file_name_db)))
 
-            data_room_query = connection.execute(text('''SELECT r* FROM room WHERE host_id = {0} AND json_name = {1} AND finished = '0';'''.format(host_id, file_name_db)))
+            data_room_query = connection.execute(text('''SELECT * FROM room WHERE host_id = {0} AND json_name = {1} AND finished = '0';'''.format(host_id, file_name_db)))
 
             data_room_db = data_room_query.fetchone()
             if not data_room_db:
@@ -325,14 +325,15 @@ def end_game():
 # @app.route('/attack', methods = ['POST'])
 # def attack():
 # Attack on player
-# Input: {'attack_type': 0/1/2, 'player_id': 'player_id', 'room_id': 'room_id'}
-# Output: {'attack_type': 0/1/2, 'player_id': 'player_id', 'room_id': 'room_id'}
+# Input: {'attack_type': 0/1/2, 'player_id': 'player_id', 'player_role': 'host/guest', 'room_id': 'room_id'}
+# Output: {'attack_type': 0/1/2, 'player_id': 'player_id', 'player_role': 'host/guest', 'room_id': 'room_id'}
 @app.route('/attack', methods=['POST'])
 def attack():
     if request.method == 'POST':
         data = request.json
         attack_type = data['attack_type']
         player_id = data['player_id']
+        player_role = data['player_role']
         room_id = data['room_id']
 
         if attack_type == 0:
@@ -350,20 +351,23 @@ def attack():
 
                     attack = 0
                     oponent_id = 0
-                    if player_id == host_id:
+                    oponent_role = ''
+                    if player_role.lower() == 'host':
                         attack = json_data['player_guest']['attacks']  # the attack from pl2 to pl1
                         json_data['player_guest']['attacks'] = 0
                         oponent_id = guest_id
+                        oponent_role = 'guest'
 
-                    if player_id == guest_id:
+                    else:
                         attack = json_data['player_host']['attacks']  # the attack from pl1 to pl2
                         json_data['player_host']['attacks'] = 0
                         oponent_id = host_id
+                        oponent_role = 'host'
 
                     with open('./rooms_json/' + file_name, 'w', encoding='utf-8') as json_file:
                         json.dump(json_data, json_file, ensure_ascii=False, indent=4)
 
-                    response = jsonify({'attack_type': attack, 'player_id': oponent_id, 'room_id': room_id})
+                    response = jsonify({'attack_type': attack, 'player_id': oponent_id, 'player_role': oponent_role, 'room_id': room_id})
                     response.headers.add("Access-Control-Allow-Origin", "*")
                     return response
 
@@ -382,20 +386,22 @@ def attack():
 
                     attack = 0
                     oponent_id = 0
-                    if player_id == host_id:
+                    if player_role.lower() == 'host':
                         # attack = json_data['player_guest']['attacks']  # the attack from pl2 to pl1
                         json_data['player_host']['attacks'] = attack_type
                         oponent_id = guest_id
+                        oponent_role = 'guest'
 
-                    if player_id == guest_id:
+                    else:
                         # attack = json_data['player_host']['attacks']  # the attack from pl1 to pl2
                         json_data['player_guest']['attacks'] = attack_type
                         oponent_id = host_id
+                        oponent_role = 'host'
 
                     with open('./rooms_json/' + file_name, 'w', encoding='utf-8') as json_file:
                         json.dump(json_data, json_file, ensure_ascii=False, indent=4)
 
-                    response = jsonify({'attack_type': attack, 'player_id': oponent_id, 'room_id': room_id})
+                    response = jsonify({'attack_type': attack, 'player_id': oponent_id, 'player_role': oponent_role, 'room_id': room_id})
                     response.headers.add("Access-Control-Allow-Origin", "*")
                     return response
 
