@@ -45,9 +45,9 @@ const Rooms = () => {
   const [rooms, setRooms] = useState([]);
 
   const fetchData = () =>
-    fetch("https://127.0.0.1:5000/list_games")
+    fetch("http://127.0.0.1:5000/list_games")
       .then((res) => res.json())
-      .then((res) => setRooms(res.rooms_list));
+      .then((res) => setRooms(res.rooms_list || []));
 
   useEffect(() => {
     fetchData();
@@ -55,7 +55,7 @@ const Rooms = () => {
 
   const onJoinClick = (id) => {
     const userId = sessionStorage.getItem("userId");
-    fetch("https://127.0.0.1:5000/connect_to_game", {
+    fetch("http://127.0.0.1:5000/connect_to_game", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -71,7 +71,7 @@ const Rooms = () => {
   };
 
   const onCreateClick = () =>
-    fetch("https://127.0.0.1:5000/create_game", {
+    fetch("http://127.0.0.1:5000/create_game", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -88,7 +88,7 @@ const Rooms = () => {
           ? history.push(`/game/${res.room_id}`)
           : setError("Error creating game!")
       );
-
+console.log(rooms);
   return (
     <Container component="main" maxWidth="xs">
       <CssBaseline />
@@ -178,7 +178,7 @@ const Rooms = () => {
             {"Available Rooms"}
           </Typography>
           <List component="nav" aria-label="secondary mailbox folders">
-            {[1, 2].map((r) => {
+            {rooms.map((r) => {
               return (
                 <ListItem>
                   <ListItemText primary={r} />

@@ -9,7 +9,7 @@ import json
 import time
 import copy
 
-db_connection = 'postgresql://postgres:postgres@127.0.0.1:5432/timemeout-db'
+db_connection = 'postgresql://postgres:postgres@127.0.0.1:5432/timemeout-game'
 engine = create_engine(db_connection)
 
 app = Flask(__name__)
@@ -181,7 +181,7 @@ def list_games():
             for row in rooms:
                 rooms_list.append(row[0])
 
-            if not rooms_list_query.fetchall():
+            if not rooms_list: 
                 response = jsonify({'rooms_list': ''})
                 response.headers.add("Access-Control-Allow-Origin", "*")
 
