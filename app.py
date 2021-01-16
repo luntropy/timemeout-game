@@ -9,7 +9,7 @@ import json
 import time
 import copy
 
-db_connection = 'postgresql://postgres:postgres@127.0.0.1:5432/timemeout-game'
+db_connection = 'postgresql://postgres:postgres@127.0.0.1:5432/timemeout-db'
 engine = create_engine(db_connection)
 
 app = Flask(__name__)
@@ -181,7 +181,7 @@ def list_games():
             for row in rooms:
                 rooms_list.append(row[0])
 
-            if not rooms_list: 
+            if not rooms_list:
                 response = jsonify({'rooms_list': ''})
                 response.headers.add("Access-Control-Allow-Origin", "*")
 
@@ -209,6 +209,27 @@ def connect_to_game():
         room_id = data['room_id']
         guest_id = data['guest_id']
 
+        if guest_id == -1:
+            with engine.connect() as connection:
+                get_json_file_query = connection.execute(text('''SELECT json_name FROM room WHERE room_id = {0};'''.format(room_id)))
+
+            get_json_file_name = get_json_file_query.fetchone()
+
+            if not get_json_file_name:
+                response = jsonify({'room_data_json': ''})
+                response.headers.add("Access-Control-Allow-Origin", "*")
+
+                return response
+
+            file_name = get_json_file_name[0]
+            with open('./rooms_json/' + file_name, 'r', encoding='utf-8') as json_file:
+                json_data = json.load(json_file)
+
+            response = jsonify({'room_data_json': json_data})
+            response.headers.add("Access-Control-Allow-Origin", "*")
+
+            return response
+
         with engine.connect() as connection:
             # Check if the requested game is available
             check_if_available_query = connection.execute(text('''SELECT * FROM room WHERE room_id = {0} AND guest_id is NULL;'''.format(room_id)))
@@ -216,6 +237,7 @@ def connect_to_game():
             if not check_if_available_query.fetchone():
                 response = jsonify({'room_data_json': ''})
                 response.headers.add("Access-Control-Allow-Origin", "*")
+
                 return response
 
             connect_to_game_query = connection.execute(text('''UPDATE room SET guest_id = {0} WHERE room_id = {1};'''.format(guest_id, room_id)))

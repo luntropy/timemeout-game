@@ -35,7 +35,13 @@ url = 'list_games'
 x = requests.get(BASE + url)
 
 # Test connection to a game
-data = {'guest_id': 6, 'room_id': '44'}
+data = {'guest_id': 6, 'room_id': 33}
+
+url = 'connect_to_game'
+x = requests.post(BASE + url, json = data)
+
+# Test connection to a game
+data = {'guest_id': -1, 'room_id': 67}
 
 url = 'connect_to_game'
 x = requests.post(BASE + url, json = data)
