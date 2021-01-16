@@ -159,7 +159,7 @@ def create_game():
         'guest_id': data_room_db['guest_id'],
         'settings': { 'field_size': data_room_db['field_size'], 'time_limit': data_room_db['time_limit'] },
         'player_host': { 'board': cards_first_player, 'time_left': data_room_db['time_limit'], 'player_score': player_host_score, 'game_score': 0, 'attacks': 0 },
-        'player_guest': { 'board': cards_second_player, 'time_left': data_room_db['time_limit'], 'player_score': player_guest_score, 'game_score': 0, 'attacks': 0 }, 'result': { 'game_result': 'None', 'points_host': 0, 'points_guest': 0 }}
+        'player_guest': { 'board': cards_second_player, 'time_left': data_room_db['time_limit'], 'player_score': player_guest_score, 'game_score': 0, 'attacks': 0 }}
 
         with open('./rooms_json/' + file_name, 'w', encoding='utf-8') as json_file:
             json.dump(data_json, json_file, ensure_ascii=False, indent=4)
