@@ -1,4 +1,7 @@
 import React from "react";
+import {
+  Link
+} from "react-router-dom";
 import "./navbar.css";
 
 const Navbar = (props) => (
@@ -9,6 +12,9 @@ const Navbar = (props) => (
           <div className="restart" onClick={() => props.newGame()}>
             Restart Game
           </div>
+        </li>
+        <li className="nav-item">
+        <Link to="/">Back To Home</Link>
         </li>
       </ul>
     </div>
