@@ -297,7 +297,7 @@ def end_game():
 
 # returns poinst and winner
 # Input: {'player_id': player_id, 'player_role': player_role, 'room_id': room_id}
-# Otput: {'winner_id': id, 'oponent_score': points}
+# Otput: {'finished': 0, 'winner_id': id, 'host_score': host_game_score, 'guest_score': guest_game_score}
 @app.route('/game_over', methods=['POST'])
 def game_over():
     if request.method == 'POST':
@@ -322,7 +322,7 @@ def game_over():
         guest_finished = json_data['player_guest']['finished']
 
         if host_finished == 0  or guest_finished == 0:
-            response = jsonify({'finished': 0, 'winner_id': 0, 'host_score': host_game_score, 'guest_score': guest_game_score})
+            response = jsonify({'finished': 0, 'winner_id': player_id, 'host_score': host_game_score, 'guest_score': guest_game_score})
             response.headers.add("Access-Control-Allow-Origin", "*")
             return response
 
@@ -344,7 +344,7 @@ def game_over():
             with engine.connect() as connection:
                 update_host_score_query = connection.execute(text('''UPDATE Player SET Score = {0} WHERE player_id = {1};'''.format(host_score, host_id)))
                 update_guest_score_query = connection.execute(text('''UPDATE Player SET Score = {0} WHERE player_id = {1};'''.format(guest_score, guest_id)))
-                response = jsonify({'finished': 0, 'winner_id': 0, 'host_score': host_game_score, 'guest_score': guest_game_score})
+                response = jsonify({'finished': 1, 'winner_id': host_id, 'host_score': host_game_score, 'guest_score': guest_game_score})
                 response.headers.add("Access-Control-Allow-Origin", "*")
                 return response
         elif host_game_score < guest_game_score:
@@ -355,13 +355,13 @@ def game_over():
             with engine.connect() as connection:
                 update_host_score_query = connection.execute(text('''UPDATE Player SET Score = {0} WHERE player_id = {1};'''.format(host_score, host_id)))
                 update_guest_score_query = connection.execute(text('''UPDATE Player SET Score = {0} WHERE player_id = {1};'''.format(guest_score, guest_id)))
-                response = jsonify({'finished': 0, 'winner_id': 0, 'host_score': host_game_score, 'guest_score': guest_game_score})
+                response = jsonify({'finished': 1, 'winner_id': guest_id, 'host_score': host_game_score, 'guest_score': guest_game_score})
                 response.headers.add("Access-Control-Allow-Origin", "*")
                 return response
         else:
             with engine.connect() as connection:
                 finish_game_query = connection.execute(text('''UPDATE room SET Finished = {0}, Game_result = {1} WHERE room_id = {2};'''.format(True, "'DRAW'", room_id)))
-                response = jsonify({'finished': 0, 'winner_id': 0, 'host_score': host_game_score, 'guest_score': guest_game_score})
+                response = jsonify({'finished': 1, 'winner_id': player_id, 'host_score': host_game_score, 'guest_score': guest_game_score})
                 response.headers.add("Access-Control-Allow-Origin", "*")
                 return response
 
