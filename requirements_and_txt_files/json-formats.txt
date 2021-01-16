@@ -52,14 +52,14 @@ Room JSON file contents
         "time_left": 30,
         "player_score": 100,
         "game_score": 0,
-        "attacks": {}
+        "attacks": 1
     },
     "player_guest": {
         "board": [],
         "time_left": 30,
         "player_score": 0,
         "game_score": 0,
-        "attacks": {}
+        "attacks": 0
     },
     "result": {
         "game_result": "None",
@@ -95,7 +95,7 @@ Output:
 def end_game():
 
 Input:
-{'room_id': 'room_id', 'winner': 'host/guest/draw'}
+{'room_id': 'room_id', 'winner': 'host/guest/draw', 'player_id': id, 'player_role': 'host/guest', 'player_game_score': 'game_score'}
 
 Output:
 None
@@ -104,4 +104,8 @@ None
 @app.route('/attack', methods = ['POST'])
 def attack():
 
-?
+Input:
+{'attack_type': 0/1/2, 'player_id': 'player_id', 'player_role': 'host/guest', 'room_id': 'room_id'}
+
+Output:
+{'attack_type': 0/1/2, 'player_id': 'player_id', 'player_role': 'host/guest', 'room_id': 'room_id'}
