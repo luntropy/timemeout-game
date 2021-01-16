@@ -4,6 +4,7 @@ import Login from "./components/login/Login";
 import Registration from "./components/registration/Registration";
 import Game from "./components/game/Game";
 import Rooms from "./components/rooms/Rooms";
+import Over from "./components/game/Over"
 
 export default function App() {
   return (
@@ -18,6 +19,7 @@ export default function App() {
           }}
         />
         <Route path="/rooms" component={Rooms} />
+        <Route path="/end" component={Over} />
       </Switch>
     </Router>
   );

@@ -1,9 +1,6 @@
 import React from "react";
 import PropTypes from "prop-types";
-
 import Card from "../card/Card";
-
-import "./styles.css";
 
 export default function Board({
   disabled,

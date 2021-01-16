@@ -1,20 +1,21 @@
 import React, { useState, useEffect } from "react";
-import { useHistory, Link } from "react-router-dom";
-import Button from "@material-ui/core/Button";
-import CssBaseline from "@material-ui/core/CssBaseline";
-import Grid from "@material-ui/core/Grid";
-import Typography from "@material-ui/core/Typography";
+import { useHistory } from "react-router-dom";
+import {
+  Button,
+  CssBaseline,
+  Grid,
+  Typography,
+  Container,
+  Radio,
+  RadioGroup,
+  FormControlLabel,
+  FormControl,
+  FormLabel,
+  List,
+  ListItem,
+  ListItemText,
+} from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
-import Container from "@material-ui/core/Container";
-import Radio from "@material-ui/core/Radio";
-import RadioGroup from "@material-ui/core/RadioGroup";
-import FormControlLabel from "@material-ui/core/FormControlLabel";
-import FormControl from "@material-ui/core/FormControl";
-import FormLabel from "@material-ui/core/FormLabel";
-import List from "@material-ui/core/List";
-import ListItem from "@material-ui/core/ListItem";
-import ListItemIcon from "@material-ui/core/ListItemIcon";
-import ListItemText from "@material-ui/core/ListItemText";
 
 const useStyles = makeStyles((theme) => ({
   paper: {
@@ -63,11 +64,13 @@ const Rooms = () => {
       body: JSON.stringify({ guest_id: userId, room_id: id }),
     })
       .then((res) => res.json())
-      .then((res) =>
+      .then((res) => {
+        sessionStorage.setItem("roomId", res.room_data_json.room_id);
+        sessionStorage.setItem("timeLimit", res.room_data_json.settings.time_limit)
         res.room_data_json
           ? history.push(`/game/${id}`)
-          : setError("Error joining game!")
-      );
+          : setError("Error joining game!");
+      });
   };
 
   const onCreateClick = () =>
@@ -83,12 +86,14 @@ const Rooms = () => {
       }),
     })
       .then((res) => res.json())
-      .then((res) =>
+      .then((res) => {
+        sessionStorage.setItem("roomId", res.room_id);
+        sessionStorage.setItem("guestId", 0);
         res.game_creation === 1
           ? history.push(`/game/${res.room_id}`)
-          : setError("Error creating game!")
-      );
-console.log(rooms);
+          : setError("Error creating game!");
+      });
+
   return (
     <Container component="main" maxWidth="xs">
       <CssBaseline />
