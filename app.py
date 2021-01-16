@@ -367,7 +367,7 @@ def ckeck_if_game_has_ended(room_id):
 # def attack():
 # Attack on player
 # Input: {'attack_type': 0/1/2, 'player_id': 'player_id', 'player_role': 'host/guest', 'room_id': 'room_id'}
-# Output: {'attack_type': 0/1/2, 'player_id': 'player_id', 'player_role': 'host/guest', 'room_id': 'room_id'}
+# Output: {'attack_type': 0/1/2, 'player_id': 'player_id', 'player_role': 'host/guest', 'room_id': 'room_id', 'finished': 0/1, 'winner': 'host/guest/'}
 @app.route('/attack', methods=['POST'])
 def attack():
     if request.method == 'POST':
@@ -409,7 +409,7 @@ def attack():
                     with open('./rooms_json/' + file_name, 'w', encoding='utf-8') as json_file:
                         json.dump(json_data, json_file, ensure_ascii=False, indent=4)
 
-                    response = jsonify({'attack_type': attack, 'player_id': oponent_id, 'player_role': oponent_role, 'room_id': room_id})
+                    response = jsonify({'attack_type': attack, 'player_id': oponent_id, 'player_role': oponent_role, 'room_id': room_id, 'finished': finished, 'winner': pl})
                     response.headers.add("Access-Control-Allow-Origin", "*")
                     return response
 
