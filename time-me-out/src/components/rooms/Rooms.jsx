@@ -45,6 +45,8 @@ const Rooms = () => {
   const [error, setError] = useState("");
   const [rooms, setRooms] = useState([]);
 
+  const userId = sessionStorage.getItem("userId");
+
   const fetchData = () =>
     fetch("http://127.0.0.1:5000/list_games")
       .then((res) => res.json())
@@ -80,7 +82,7 @@ const Rooms = () => {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        host_id: 3,
+        host_id: userId,
         field_size: 16,
         time_limit: parseInt(value),
       }),

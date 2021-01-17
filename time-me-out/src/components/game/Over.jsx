@@ -26,7 +26,7 @@ const Over = () => {
   const classes = useStyles();
   const location = useLocation();
 
-  const [hasWon, setHasWon] = useState(false);
+  const [hasWon, setHasWon] = useState('');
   const [waiting, setWaiting] = useState(true);
   const [otherScore, setOtherScore] = useState(0);
 
@@ -50,8 +50,8 @@ const Over = () => {
           score === Number(res.host_score)
             ? setOtherScore(Number(res.guest_score))
             : setOtherScore(Number(res.host_score));
+          setHasWon(res.winner_id === userId ? 'won' : 'lost');
           setWaiting(false);
-          setHasWon(res.winner_id === Number(userId));
         }
       });
   };
@@ -101,9 +101,12 @@ const Over = () => {
                 {`It's a draw!`}
               </Typography>
             ) : (
+              <>
+              {hasWon &&
               <Typography component="h1" variant="h5">
-                {`You have ${hasWon ? "won" : "lost"} the game!`}
+                {`You have ${hasWon} the game!`}
               </Typography>
+              }</>
             )}
             <Button
               type="button"
