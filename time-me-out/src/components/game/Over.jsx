@@ -51,7 +51,7 @@ const Over = () => {
             ? setOtherScore(Number(res.guest_score))
             : setOtherScore(Number(res.host_score));
           setWaiting(false);
-          setHasWon(res.winner_id === userId);
+          setHasWon(res.winner_id === Number(userId));
         }
       });
   };

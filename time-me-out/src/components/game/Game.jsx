@@ -20,16 +20,16 @@ export default function Game() {
   const [score, setScore] = useState(0);
   const [combo, setCombo] = useState(1);
   const [loading, setLoading] = useState(true);
-  const [counter, setCounter] = useState('')
+  const [counter, setCounter] = useState("");
   const history = useHistory();
 
-  const userId = sessionStorage.getItem("userId")
+  const userId = sessionStorage.getItem("userId");
   const guestId = sessionStorage.getItem("guestId");
   const roomId = sessionStorage.getItem("roomId");
-  const timeLimit = sessionStorage.getItem("timeLimit")
+  const timeLimit = sessionStorage.getItem("timeLimit");
 
   const checkForUser = () => {
-    if (guestId === '0') {
+    if (guestId === "0") {
       fetch("http://127.0.0.1:5000/connect_to_game", {
         method: "POST",
         headers: {
@@ -40,13 +40,13 @@ export default function Game() {
         .then((res) => res.json())
         .then((res) => {
           if (res.room_data_json.guest_id) {
-            setCounter(10)
+            setCounter(res.room_data_json.settings.time_limit);
             setLoading(false);
             sessionStorage.setItem("guestId", res.room_data_json.guest_id);
           }
         });
     } else {
-      setCounter(10)
+      setCounter(timeLimit);
       setLoading(false);
     }
   };
@@ -59,23 +59,22 @@ export default function Game() {
   useEffect(() => {
     counter > 0 && setTimeout(() => setCounter(counter - 1), 1000);
     if (counter === 0 || solved.length === 10) {
-      const role = sessionStorage.getItem("guestId") ? 'host' : 'guest'
+      const role = sessionStorage.getItem("guestId") ? "host" : "guest";
 
       fetch("http://127.0.0.1:5000/end_game", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ 
-          room_id: roomId, 
-          player_role: role, 
-          player_id: userId, 
-          player_game_score: score 
+        body: JSON.stringify({
+          room_id: roomId,
+          player_role: role,
+          player_id: userId,
+          player_game_score: score,
         }),
-      })
-      history.push({ pathname: '/end', score, userId, role, roomId })
+      });
+      history.push({ pathname: "/end", score, userId, role, roomId });
     }
-
   }, [counter]);
 
   useEffect(() => {
@@ -96,17 +95,17 @@ export default function Game() {
 
   const handleOtherRoomsClick = () => {
     fetch("http://127.0.0.1:5000/end_game", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ 
-          room_id: roomId, 
-          player_role: sessionStorage.getItem("guestId") ? 'host' : 'guest', 
-          player_id: userId, 
-          player_game_score: -100 
-        }),
-      })
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        room_id: roomId,
+        player_role: sessionStorage.getItem("guestId") ? "host" : "guest",
+        player_id: userId,
+        player_game_score: -100,
+      }),
+    });
     sessionStorage.removeItem("roomId");
     sessionStorage.removeItem("guestId");
     sessionStorage.removeItem("timeLimit");
@@ -160,6 +159,21 @@ export default function Game() {
     );
   };
 
+  const getTime = () => {
+    const minutes = Math.floor((counter % 3600) / 60);
+    const seconds = Math.floor((counter % 3600) % 60);
+
+    const displayMinutes =
+      minutes > 0
+        ? `${minutes.toString().length > 1 ? `${minutes}` : `${0}${minutes}`}`
+        : "00";
+    const displaySeconds =
+      seconds > 0
+        ? `${seconds.toString().length > 1 ? `${seconds}` : `${0}${seconds}`}`
+        : "00";
+    return `${displayMinutes}:${displaySeconds}`;
+  };
+
   return (
     <Container component="main" maxWidth="sm">
       <CssBaseline />
@@ -185,11 +199,13 @@ export default function Game() {
             {"Score: " + score}
           </Typography>
         </Grid>
-        {Number(counter) !== 0 &&<Grid item>
-          <Typography component="h2" variant="h5">
-            {`${counter >= 60 ? '01' : '00'}:${counter < 10 || (counter > 60 && counter < 70) ? '0' : ''}${counter % 60}`}
-          </Typography>
-        </Grid>}
+        {Number(counter) !== 0 && (
+          <Grid item>
+            <Typography component="h2" variant="h5">
+              {getTime()}
+            </Typography>
+          </Grid>
+        )}
       </Grid>
       <Grid>
         {loading ? (
