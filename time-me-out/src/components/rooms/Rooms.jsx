@@ -68,7 +68,10 @@ const Rooms = () => {
       .then((res) => res.json())
       .then((res) => {
         sessionStorage.setItem("roomId", res.room_data_json.room_id);
-        sessionStorage.setItem("timeLimit", res.room_data_json.settings.time_limit)
+        sessionStorage.setItem(
+          "timeLimit",
+          res.room_data_json.settings.time_limit
+        );
         res.room_data_json
           ? history.push(`/game/${id}`)
           : setError("Error joining game!");
@@ -136,8 +139,8 @@ const Rooms = () => {
             variant="contained"
             color="primary"
             onClick={() => {
-              sessionStorage.removeItem("userId")
-              history.push('/')              
+              sessionStorage.removeItem("userId");
+              history.push("/");
             }}
             className={classes.submit}
           >
@@ -203,11 +206,13 @@ const Rooms = () => {
             {rooms.map((r) => {
               return (
                 <ListItem className={classes.listItemText}>
-                  <ListItemText primary={
-                    <Typography component="h3" variant="h5">
-                    {r }
-                  </Typography>
-                  } />
+                  <ListItemText
+                    primary={
+                      <Typography component="h3" variant="h5">
+                        {r}
+                      </Typography>
+                    }
+                  />
                   <Button
                     type="button"
                     variant="contained"
