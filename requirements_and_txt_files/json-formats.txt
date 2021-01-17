@@ -98,10 +98,14 @@ Input:
 {'room_id': 'room_id', 'winner': 'host/guest/draw'}
 
 Output:
-None
+{'result': res}
 
 ----------------------
 @app.route('/attack', methods = ['POST'])
 def attack():
 
-?
+Input:
+{'attack_type': 0/1/2, 'player_id': 'player_id', 'player_role': 'host/guest', 'room_id': 'room_id'}
+Output:
+{'attack_type': attack, 'player_id': oponent_id, 'player_role': oponent_role, 'room_id': room_id, 'finished': 0/1, 'winner': 'host'/'guest'/''}
+
