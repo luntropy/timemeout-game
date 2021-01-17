@@ -1,6 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { useHistory, useLocation } from "react-router-dom";
-import { Button, CssBaseline, Typography, Container } from "@material-ui/core";
+import {
+  Button,
+  CssBaseline,
+  Typography,
+  Container,
+  CircularProgress,
+} from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 
 const useStyles = makeStyles((theme) => ({
@@ -40,10 +46,10 @@ const Over = () => {
     })
       .then((res) => res.json())
       .then((res) => {
-        if (res) {
-          score === Number(res.host)
-            ? setOtherScore(Number(res.guest))
-            : setOtherScore(Number(res.host));
+        if (res.finished) {
+          score === Number(res.host_score)
+            ? setOtherScore(Number(res.guest_score))
+            : setOtherScore(Number(res.host_score));
           setWaiting(false);
           setHasWon(res.winner_id === userId);
         }
@@ -72,14 +78,24 @@ const Over = () => {
           {`You have achieved ${score} points!`}
         </Typography>
         {waiting ? (
-          <Typography component="h1" variant="h5">
-            {`Waiting for other player to finish...`}
-          </Typography>
-        ) : (
           <>
             <Typography component="h1" variant="h5">
-              {`Your opponent has achieved ${otherScore} points!`}
+              {`Waiting for other player to finish...`}
             </Typography>
+            <CircularProgress />
+          </>
+        ) : (
+          <>
+            {" "}
+            {otherScore !== -100 ? (
+              <Typography component="h5" variant="h5">
+                {`Your opponent has ${otherScore} points!`}
+              </Typography>
+            ) : (
+              <Typography component="h1" variant="h5">
+                {`Your opponent has left the game!`}
+              </Typography>
+            )}
             {score === otherScore ? (
               <Typography component="h1" variant="h5">
                 {`It's a draw!`}

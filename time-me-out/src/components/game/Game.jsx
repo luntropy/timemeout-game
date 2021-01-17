@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import Board from "../board/Board";
-import Over from "./Over";
 import {
   Container,
   CssBaseline,
@@ -21,7 +20,7 @@ export default function Game() {
   const [score, setScore] = useState(0);
   const [combo, setCombo] = useState(1);
   const [loading, setLoading] = useState(true);
-  const [counter, setCounter] = useState()
+  const [counter, setCounter] = useState('')
   const history = useHistory();
 
   const userId = sessionStorage.getItem("userId")
@@ -41,13 +40,13 @@ export default function Game() {
         .then((res) => res.json())
         .then((res) => {
           if (res.room_data_json.guest_id) {
-            setCounter(res.room_data_json.settings.time_limit)
+            setCounter(10)
             setLoading(false);
             sessionStorage.setItem("guestId", res.room_data_json.guest_id);
           }
         });
     } else {
-      setCounter(timeLimit)
+      setCounter(10)
       setLoading(false);
     }
   };
@@ -96,7 +95,21 @@ export default function Game() {
   });
 
   const handleOtherRoomsClick = () => {
+    fetch("http://127.0.0.1:5000/end_game", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ 
+          room_id: roomId, 
+          player_role: sessionStorage.getItem("guestId") ? 'host' : 'guest', 
+          player_id: userId, 
+          player_game_score: -100 
+        }),
+      })
     sessionStorage.removeItem("roomId");
+    sessionStorage.removeItem("guestId");
+    sessionStorage.removeItem("timeLimit");
     history.push("/rooms");
   };
 
@@ -172,7 +185,7 @@ export default function Game() {
             {"Score: " + score}
           </Typography>
         </Grid>
-        {counter !== 0 &&<Grid item>
+        {Number(counter) !== 0 &&<Grid item>
           <Typography component="h2" variant="h5">
             {`${counter >= 60 ? '01' : '00'}:${counter < 10 || (counter > 60 && counter < 70) ? '0' : ''}${counter % 60}`}
           </Typography>

@@ -127,6 +127,21 @@ const Rooms = () => {
             {"Create"}
           </Button>
         </Grid>
+        <Grid item>
+          <Button
+            type="button"
+            fullWidth
+            variant="contained"
+            color="primary"
+            onClick={() => {
+              sessionStorage.removeItem("userId")
+              history.push('/')              
+            }}
+            className={classes.submit}
+          >
+            {"Logout"}
+          </Button>
+        </Grid>
       </Grid>
       {!showRooms && (
         <div className={classes.paper}>
