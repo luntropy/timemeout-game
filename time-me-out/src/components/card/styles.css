@@ -25,7 +25,6 @@
 
 .back {
   z-index: 2;
-  /* for firefox 31 */
   transform: rotateY(0deg);
 }
 
