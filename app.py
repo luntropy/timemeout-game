@@ -78,7 +78,7 @@ def register_user():
             player_id = select_user_id.fetchone()[0]
             response = jsonify({'registration': 1, 'player_id': player_id})
             response.headers.add("Access-Control-Allow-Origin", "*")
-        return response
+            return response
 
 
 # User login authentication
@@ -158,8 +158,8 @@ def create_game():
         'host_id': data_room_db['host_id'],
         'guest_id': data_room_db['guest_id'],
         'settings': { 'field_size': data_room_db['field_size'], 'time_limit': data_room_db['time_limit'] },
-        'player_host': { 'board': cards_first_player, 'time_left': data_room_db['time_limit'], 'player_score': player_host_score, 'game_score': 0, 'attacks': 0 },
-        'player_guest': { 'board': cards_second_player, 'time_left': data_room_db['time_limit'], 'player_score': player_guest_score, 'game_score': 0, 'attacks': 0 }, 'result': { 'game_result': 'None', 'points_host': 0, 'points_guest': 0 }}
+        'player_host': { 'board': cards_first_player, 'time_left': data_room_db['time_limit'], 'player_score': player_host_score, 'game_score': 0, 'attacks': 0, 'finished': 0},
+        'player_guest': { 'board': cards_second_player, 'time_left': data_room_db['time_limit'], 'player_score': player_guest_score, 'game_score': 0, 'attacks': 0, 'finished': 0}}
 
         with open('./rooms_json/' + file_name, 'w', encoding='utf-8') as json_file:
             json.dump(data_json, json_file, ensure_ascii=False, indent=4)
@@ -237,7 +237,6 @@ def connect_to_game():
             if not check_if_available_query.fetchone():
                 response = jsonify({'room_data_json': ''})
                 response.headers.add("Access-Control-Allow-Origin", "*")
-
                 return response
 
             connect_to_game_query = connection.execute(text('''UPDATE room SET guest_id = {0} WHERE room_id = {1};'''.format(guest_id, room_id)))
@@ -269,7 +268,6 @@ def end_game():
     if request.method == 'POST':
         data = request.json
         room_id = data['room_id']
-        # game_result = data['winner']
         player_id = data['player_id']
         player_role = data['player_role']
         player_game_score = data['player_game_score']
@@ -403,7 +401,6 @@ def ckeck_if_game_has_ended(room_id):
             else:
                 player = 'guest'
     return finished, player
-
 
 
 # @app.route('/attack', methods = ['POST'])
