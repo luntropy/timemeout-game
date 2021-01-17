@@ -202,8 +202,12 @@ const Rooms = () => {
           <List component="nav" aria-label="secondary mailbox folders">
             {rooms.map((r) => {
               return (
-                <ListItem>
-                  <ListItemText primary={r} />
+                <ListItem className={classes.listItemText}>
+                  <ListItemText primary={
+                    <Typography component="h3" variant="h5">
+                    {r }
+                  </Typography>
+                  } />
                   <Button
                     type="button"
                     variant="contained"
