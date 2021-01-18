@@ -9,26 +9,14 @@ import json
 import time
 import copy
 
-db_connection = 'postgresql://postgres:postgres@127.0.0.1:5432/timemeout-game'
+db_connection = 'postgresql://postgres:postgres@127.0.0.1:5432/timemeout-db'
 engine = create_engine(db_connection)
 
 app = Flask(__name__)
 CORS(app)
 
-
-# Test
-@app.route("/", methods=["GET"])
-def get_example():
-    """GET in server"""
-    response = jsonify(message="Simple server is running")
-    response.headers.add("Access-Control-Allow-Origin", "*")
-
-    return response
-
-
 app.config['SQLALCHEMY_DATABASE_URI'] = db_connection
 db = SQLAlchemy(app)
-
 
 # Functions
 def generate_cards(field_size):
@@ -51,7 +39,6 @@ def generate_cards(field_size):
         deck_list.append(str(card))
 
     return deck_list
-
 
 # User registration
 # Needed information:
@@ -293,7 +280,7 @@ def end_game():
         return response
 
 
-# returns poinst and winner
+# returns points and winner
 # Input: {'player_id': player_id, 'player_role': player_role, 'room_id': room_id}
 # Otput: {'finished': 0, 'winner_id': id, 'host_score': host_game_score, 'guest_score': guest_game_score}
 @app.route('/game_over', methods=['POST'])
@@ -364,44 +351,6 @@ def game_over():
                 response = jsonify({'finished': 1, 'winner_id': player_id, 'host_score': host_game_score, 'guest_score': guest_game_score})
                 response.headers.add("Access-Control-Allow-Origin", "*")
                 return response
-
-
-def ckeck_if_game_has_ended(room_id):
-    room = None
-    player = ''
-    finished = 0
-    with engine.connect() as connection:
-        rooms_json_query = connection.execute(text('''SELECT * FROM room WHERE room_id = {0};'''.format(room_id)))
-        room = rooms_json_query.fetchone()
-    if room is not None:
-        finished = room['finished']
-        if finished == 1:
-            finished = 1
-            res = room['game_result']
-            if res.lower() == 'win':
-                player = 'host'
-            else:
-                player = 'guest'
-    return finished, player
-
-def ckeck_if_game_has_ended(room_id):
-    room = None
-    player = ''
-    finished = 0
-    with engine.connect() as connection:
-        rooms_json_query = connection.execute(text('''SELECT * FROM room WHERE room_id = {0};'''.format(room_id)))
-        room = rooms_json_query.fetchone()
-    if room is not None:
-        finished = room['finished']
-        if finished == 1:
-            finished = 1
-            res = room['game_result']
-            if res.lower() == 'win':
-                player = 'host'
-            else:
-                player = 'guest'
-    return finished, player
-
 
 # @app.route('/attack', methods = ['POST'])
 # def attack():
