@@ -351,7 +351,7 @@ def game_over():
                 response = jsonify({'finished': 1, 'winner_id': player_id, 'host_score': host_game_score, 'guest_score': guest_game_score})
                 response.headers.add("Access-Control-Allow-Origin", "*")
                 return response
-                
+
 def ckeck_if_game_has_ended(room_id):
     room = None
     player = ''
@@ -419,7 +419,6 @@ def attack():
                     response = jsonify({'attack_type': attack, 'player_id': oponent_id, 'player_role': oponent_role, 'room_id': room_id, 'finished': finished, 'winner': pl})
                     response.headers.add("Access-Control-Allow-Origin", "*")
                     return response
-
         else:
             with engine.connect() as connection:
                 rooms_json_query = connection.execute(text('''SELECT json_name FROM room WHERE room_id = {0};'''.format(room_id)))
@@ -453,7 +452,6 @@ def attack():
                     response = jsonify({'attack_type': attack, 'player_id': oponent_id, 'player_role': oponent_role, 'room_id': room_id, 'finished': finished, 'winner': pl})
                     response.headers.add("Access-Control-Allow-Origin", "*")
                     return response
-
 
 if __name__ == '__main__':
     app.run(debug=True)
