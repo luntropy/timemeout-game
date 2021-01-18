@@ -351,6 +351,24 @@ def game_over():
                 response = jsonify({'finished': 1, 'winner_id': player_id, 'host_score': host_game_score, 'guest_score': guest_game_score})
                 response.headers.add("Access-Control-Allow-Origin", "*")
                 return response
+                
+def ckeck_if_game_has_ended(room_id):
+    room = None
+    player = ''
+    finished = 0
+    with engine.connect() as connection:
+        rooms_json_query = connection.execute(text('''SELECT * FROM room WHERE room_id = {0};'''.format(room_id)))
+        room = rooms_json_query.fetchone()
+    if room is not None:
+        finished = room['finished']
+        if finished == 1:
+            finished = 1
+            res = room['game_result']
+            if res.lower() == 'win':
+                player = 'host'
+            else:
+                player = 'guest'
+    return finished, player
 
 # @app.route('/attack', methods = ['POST'])
 # def attack():
