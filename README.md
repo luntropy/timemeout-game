@@ -2,7 +2,7 @@
 ## Purpose
 Creating an online PvP game similar to the popular "Concentration" card game.
 
-["Concentration" Wikipedia](https://en.wikipedia.org/wiki/Concentration_(card_game))
+["Concentration" card game, Wikipedia](https://en.wikipedia.org/wiki/Concentration_(card_game))
 
 ## About the game
 Two pairs join a single room where they have field of cards. The purpose of the game is to find all matching pairs of cards in the field. The winner of the game is the one who finds all of them first.
@@ -20,10 +20,10 @@ In separate terminal, in the 'time-me-out' directory:
 
 ## Design
 ### One pair found
-![one-pair-found](https://github.com/luntropy/blob/main/images/one-pair-found.png)
+![one-pair-found](https://github.com/luntropy/timemeout-game/blob/main/images/one-pair-found.png)
 
 ### Searching for second pair
-![searching-second-pair](https://github.com/luntropy/blob/main/images/searching-second-pair.png)
+![searching-second-pair](https://github.com/luntropy/timemeout-game/blob/main/images/searching-second-pair.png)
 
 ### Second pair found
-![second-pair-found](https://github.com/luntropy/blob/main/images/second-pair-found.png)
+![second-pair-found](https://github.com/luntropy/timemeout-game/blob/main/images/second-pair-found.png)
