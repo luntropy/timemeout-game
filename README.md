@@ -14,7 +14,7 @@ The program is created using Flask, React and PostgreSQL.
 In the directory containing the 'app.py' file:
 - Run `python3 app.py`
 In separate terminal, in the 'time-me-out' directory:
-- Run `yarn start` in the
+- Run `yarn start`
 
 ! All dependencies must be installed.
 
