@@ -11,11 +11,11 @@ Two players join a single room where they have a field of cards. The purpose of 
 The program is created using Flask, React and PostgreSQL.
 
 ### To run the program
-In the directory containing the 'app.py' file:
-- Run `python3 app.py`\
-\
-In separate terminal, in the 'time-me-out' directory:
-- Run `yarn start`
+- In the directory containing the 'app.py' file:\
+Run `python3 app.py`
+
+- In separate terminal, in the 'time-me-out' directory:\
+Run `yarn start`
 
 ! All dependencies must be installed.
 
